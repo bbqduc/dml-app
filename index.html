@@ -1,0 +1,30 @@
+<html>
+<head></head>
+<body>
+
+
+<embed src="cards/10c.png" type="image/png" height="128px"/>
+
+<script>
+
+var owncards = [];
+
+var ws = new WebSocket("ws://localhost:8080");
+
+ws.onopen = function(){
+	console.log("connected!");
+	ws.send("hello from the browser!");
+};
+
+ws.onmessage = function(event)
+{
+	console.log(event.data);
+}
+
+
+</script>
+
+
+
+</body>
+</html>
