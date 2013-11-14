@@ -56,13 +56,23 @@ class Game
 		@players[id].hand.TakeFrom @gamedecks.event, 5
 		SendLogMessage @players[id], "You got the ID : " + id.to_s
 		SendLogMessage @players[id], "Herpsun derp!"
+		SendState @players[id]
 
 		ws.onmessage { |msg|
 			HandleMessage @players[id], msg
 			puts "Received message: #{msg}"
 		}
 
+		ws.onclose { 
+			HandleDisconnect @players[id]
+		}
+
 		SendGlobalLogMessage "Player #{id} connected."
+	end
+
+	def HandleDisconnect player
+		#todo : can't yet remove from @players since it's a dumb array
+		SendGlobalLogMessage "Player #{player.id} disconnected."
 	end
 
 	def HandleMessage player, message
@@ -92,8 +102,9 @@ class Game
 		@gamedecks = GameDecks.new
 	end
 
-	def SendState
-
+	def SendState player
+		tmp = {:type => "state", :hand => player.hand.contents, :emblems => player.emblems.contents}.to_json
+		player.connection.send tmp
 	end
 
 	def SendLogMessage player, msg
@@ -125,21 +136,7 @@ EM.run {
       # Publish message to the client
 
 	  game.AddPlayer ws
-
-	  cardnames = Array.new
-	  cards = deck.drawCards 5
-	  cards.each do |c|
-		  cardnames << (Card.getShortName c)
-	  end
-	  asd = {:cards => cardnames, :type => "cards"}
-	  ws.send asd.to_json
     }
 
-    ws.onclose { puts "Connection closed" }
-
-    ws.onmessage { |msg|
-      puts "Received message: #{msg}"
-#      ws.send "Pong: #{msg}"
-    }
   end
 }
