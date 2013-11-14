@@ -1,6 +1,6 @@
 class Card
 	def self.getSuit num
-		suit = num / 14
+		suit = num / 13
 		case suit
 		when 0
 			"h"
@@ -18,7 +18,7 @@ class Card
 	end
 
 	def self.getValue num
-		num = (num+2) % 14
+		num = (num % 13) + 2
 		case num
 		when 11
 			"J"
@@ -47,7 +47,11 @@ end
 class Deck
 
 #	@faceup = True
-	@contents = Array.new
+	attr_accessor :contents
+
+	def initialize
+		@contents = Array.new
+	end
 
 	def setToCardDeck
 		@contents = (0..53).to_a
@@ -59,5 +63,13 @@ class Deck
 
 	def drawCards num
 		@contents.shift num
+	end
+
+	def TakeFrom deck, num
+		@contents << (deck.contents.shift num)
+	end
+
+	def GiveTo deck, num
+		deck.TakeFrom this num
 	end
 end

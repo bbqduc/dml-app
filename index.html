@@ -1,12 +1,34 @@
+<!DOCTYPE html>
 <html>
-<head></head>
+<head>
+<meta charset='UTF-8'/>
+<title>DML Web-App</title>
+<link type="text/css" rel="stylesheet" href="dml.css" />
+</head>
 <body>
 
+<div id="playerhandcontainer">
+	Hand : 
+	<div id=playerhand>
+	</div>
+</div>
 
-<embed src="cards/10c.png" type="image/png" height="128px"/>
+
+<div id="servermessagelabel">
+	Server messages
+<div id="servermessagebox">
+</div>
+</div>
+
+<div id="chatmessagebox">
+</div>
+
+<div id="chatboxlabel">
+	Chat
+<input id="chatsubmitbox" type="text" onkeypress="return runScript(event)"/>
+</div>
 
 <script>
-
 var owncards = [];
 
 var ws = new WebSocket("ws://localhost:8080");
@@ -16,9 +38,51 @@ ws.onopen = function(){
 	ws.send("hello from the browser!");
 };
 
+displayServerMessage = function(msg)
+{
+	var now = new Date();
+	var message = now.toLocaleTimeString() + "> " + msg;
+	srvmsgbox = document.getElementById("servermessagebox");
+	srvmsgbox.innerHTML = srvmsgbox.innerHTML + message + "<br>";
+}
+
+displayChatMessage = function(msg)
+{
+	var now = new Date();
+	var message = now.toLocaleTimeString() + "> " + msg;
+	srvmsgbox = document.getElementById("chatmessagebox");
+	srvmsgbox.innerHTML = srvmsgbox.innerHTML + message + "<br>";
+}
+
+runScript = function(event)
+{
+	if(event.keyCode == 13)
+	{
+		var chatinputbox = document.getElementById("chatsubmitbox");
+		console.log("SUBMITTING MESSAGE : " + chatinputbox.value);
+		ws.send(JSON.stringify({type: "chat", message: chatinputbox.value}));
+		chatinputbox.value = "";
+	}
+}
+
 ws.onmessage = function(event)
 {
-	console.log(event.data);
+	var data = JSON.parse(event.data);
+	switch(data.type)
+	{
+		case "logmessage":
+			displayServerMessage(data.message);
+			break;
+		case "cards":
+			displayServerMessage("Received " + data.cards.length + " card(s) : " + data.cards.join());
+			document.getElementById("playerhand").innerHTML=data.cards.join(' ')
+			break;
+		case "chat":
+			displayChatMessage(data.message);
+			break;
+		default:
+			console.log("Message of unknown type received : " + event.data);
+	}
 }
 
 
