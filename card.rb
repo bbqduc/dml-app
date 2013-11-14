@@ -20,6 +20,8 @@ class Card
 	def self.getValue num
 		num = (num % 13) + 2
 		case num
+        when 10
+            "T"
 		when 11
 			"J"
 		when 12
@@ -54,7 +56,7 @@ class Deck
 	end
 
 	def setToCardDeck
-		@contents = (0..53).to_a
+		@contents = (0..51).to_a
 	end
 
 	def shuffle
@@ -66,10 +68,10 @@ class Deck
 	end
 
 	def TakeFrom deck, num
-		@contents << (deck.contents.shift num)
+		@contents = @contents + (deck.contents.shift num)
 	end
 
 	def GiveTo deck, num
 		deck.TakeFrom this num
-	end
+    end
 end

@@ -13,6 +13,12 @@
 	</div>
 </div>
 
+<div id="boardcontainer">
+	Board : 
+	<div id=board>
+	</div>
+</div>
+
 
 <div id="servermessagelabel">
 	Server messages
@@ -37,6 +43,12 @@ ws.onopen = function(){
 	console.log("connected!");
 	ws.send("hello from the browser!");
 };
+
+ws.onclose = function()
+{
+    document.body.innerHTML = "Disconnected. :(";
+}
+
 
 displayServerMessage = function(msg)
 {
@@ -68,13 +80,15 @@ runScript = function(event)
 ws.onmessage = function(event)
 {
 	var data = JSON.parse(event.data);
+    console.log("RECEIVED MESSAGE : " + event.data);
 	switch(data.type)
 	{
 		case "logmessage":
 			displayServerMessage(data.message);
 			break;
 		case "state":
-			document.getElementById("playerhand").innerHTML=data.hand.join(' ')
+			document.getElementById("playerhand").innerHTML=data.hand
+			document.getElementById("board").innerHTML=data.board
 			break;
 		case "chat":
 			displayChatMessage(data.message);
